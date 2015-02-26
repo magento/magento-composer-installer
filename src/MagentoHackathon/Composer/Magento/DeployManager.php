@@ -33,11 +33,6 @@ class DeployManager
      */
     protected $sortPriority = array();
 
-    /**
-     * @var Installer
-     */
-    private $installer;
-
     public function __construct(IOInterface $io)
     {
         $this->io = $io;
@@ -53,18 +48,6 @@ class DeployManager
     {
         $this->sortPriority = $priorities;
     }
-
-
-    public function setInstaller(Installer $installer)
-    {
-        $this->installer = $installer;
-    }
-
-    public function getInstaller()
-    {
-        return $this->installer;
-    }
-
 
     /**
      * uses the sortPriority Array to sort the packages.
