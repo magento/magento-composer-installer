@@ -33,11 +33,6 @@ class DeployManager
      */
     protected $sortPriority = array();
 
-    /**
-     * @var Installer
-     */
-    private $installer;
-
     public function __construct(IOInterface $io)
     {
         $this->io = $io;
@@ -53,18 +48,6 @@ class DeployManager
     {
         $this->sortPriority = $priorities;
     }
-
-
-    public function setInstaller(Installer $installer)
-    {
-        $this->installer = $installer;
-    }
-
-    public function getInstaller()
-    {
-        return $this->installer;
-    }
-
 
     /**
      * uses the sortPriority Array to sort the packages.
@@ -98,13 +81,9 @@ class DeployManager
         );
     }
 
-
-    public function doDeploy($installedLocalPackages = array())
+    public function doDeploy()
     {
         $this->sortPackages();
-        $packageCount = count($this->packages);
-        $installedLocalPackagesCount = count($installedLocalPackages);
-        $installedPackages = [];
 
         /** @var Entry $package */
         foreach ($this->packages as $package) {
@@ -112,21 +91,6 @@ class DeployManager
                 $this->io->write('start magento deploy for ' . $package->getPackageName());
             }
             $package->getDeployStrategy()->deploy();
-            $installedPackages [$package->getPackageName()] = $package->getPackageName();
-        }
-        if (!empty($installedLocalPackages) && $packageCount !== $installedLocalPackagesCount) {
-            $packageTypes = PackageTypes::$packageTypes;
-            foreach ($installedLocalPackages as $package) {
-                if (!isset($installedPackages[$package->getName()]) && isset($packageTypes[$package->getType()])) {
-                    if ($this->io->isDebug()) {
-                        $this->io->write('Updating missing packages ' . $package->getName());
-                    }
-                    $strategy = $this->getInstaller()->getDeployStrategy($package);
-                    $strategy->setMappings($this->getInstaller()->getParser($package)->getMappings());
-                    $strategy->deploy();
-                }
-            }
-
         }
     }
 }
