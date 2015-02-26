@@ -59,11 +59,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     protected $filesystem;
 
-    /**
-     * @var array PackageInterface
-     */
-    protected $installedPackages = [];
-
     protected function initDeployManager(Composer $composer, IOInterface $io)
     {
         $this->deployManager = new DeployManager($io);
@@ -145,10 +140,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         if ($this->io->isDebug()) {
             $this->io->write('start magento deploy via deployManager');
         }
-        $command = $event->getName();
-        $this->installedPackages = $event->getComposer()->getRepositoryManager()->getLocalRepository()->getPackages();
-        $this->deployManager->setInstaller($this->installer);
-        $this->deployManager->doDeploy($this->installedPackages);
+
+        $this->deployManager->doDeploy();
         $this->deployLibraries();
         $this->saveVendorDirPath($event->getComposer());
     }
