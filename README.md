@@ -166,6 +166,6 @@ After `composer install/update` is done the application is ready to work.
 
 ## Deployment Strategy
 
-The default deployment strategy used by Magneto Composer Installer is `copy`. It will copy each files/directories from `vendor` directory to its designated location based on `extra/map` information stored in each component `composer.json` file.
+The default deployment strategy used by Magento Composer Installer is `copy`. It will copy each files/directories from `vendor` directory to its designated location based on `extra/map` information stored in each component `composer.json` file.
 
 There are [other deployment strategy](https://github.com/magento-hackathon/magento-composer-installer/blob/master/doc/Deploy.md) that could be used, however Magento 2.x system does not guarantee its successful operation.
