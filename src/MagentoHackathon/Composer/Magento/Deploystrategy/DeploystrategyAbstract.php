@@ -308,19 +308,12 @@ abstract class DeploystrategyAbstract
 
         // If source doesn't exist, check if it's a glob expression, otherwise we have nothing we can do
         if (!file_exists($sourcePath)) {
-            // Handle globing
-            $matches = glob($sourcePath);
-            if ($matches) {
-                foreach ($matches as $match) {
-                    $newDest = substr($destPath . '/' . basename($match), strlen($this->getDestDir()));
-                    $newDest = ltrim($newDest, ' \\/');
-                    $this->remove(substr($match, strlen($this->getSourceDir())+1), $newDest);
-                }
-                return;
-            }
-
-            // Source file isn't a valid file or glob
-            throw new \ErrorException("Source $sourcePath does not exist");
+            $this->removeContentOfCategory($sourcePath, $destPath);
+            return;
+        } elseif (file_exists($sourcePath) && is_dir($sourcePath)) {
+            $this->removeContentOfCategory($sourcePath . '/*', $destPath);
+            @rmdir($destPath);
+            return;
         }
 
         // MP Avoid removing whole folders in case the modman file is not 100% well-written
@@ -329,6 +322,33 @@ abstract class DeploystrategyAbstract
             $destPath .= '/' . basename($source);
         }
         self::rmdirRecursive($destPath);
+    }
+
+    /**
+     * Search and remove content of category
+     *
+     * @param string $sourcePath
+     * @param string $destPath
+     * @throws \ErrorException
+     */
+    protected function removeContentOfCategory($sourcePath, $destPath)
+    {
+        $sourcePath = preg_replace('#/\*$#', '/{,.}*', $sourcePath);
+        $matches = glob($sourcePath, GLOB_BRACE);
+        if ($matches) {
+            foreach ($matches as $match) {
+                if (preg_match("#/\.{1,2}$#", $match)) {
+                    continue;
+                }
+                $newDest = substr($destPath . '/' . basename($match), strlen($this->getDestDir()));
+                $newDest = ltrim($newDest, ' \\/');
+                $this->remove(substr($match, strlen($this->getSourceDir())+1), $newDest);
+            }
+            return;
+        }
+
+        // Source file isn't a valid file or glob
+        throw new \ErrorException("Source $sourcePath does not exist");
     }
 
     /**
