@@ -175,10 +175,6 @@ class Installer extends LibraryInstaller implements InstallerInterface
             $this->isForced = (bool)$extra['magento-force'];
         }
 
-        if (false !== getenv('MAGENTO_CLOUD_PROJECT')) {
-            $this->setDeployStrategy('none');
-        }
-
         if (isset($extra['magento-deploystrategy'])) {
             $this->setDeployStrategy((string)$extra['magento-deploystrategy']);
         }
