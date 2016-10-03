@@ -8,8 +8,12 @@ In the component's `composer.json`, specify:
 
 *   `type`, type of Magento 2 component.
 *   `extra/map`, list of files to move and their paths relative to the Magento root directory.
+*   `extra/chmod`, list of permissions that should be set for files.
 
-    **Note**: `extra/map` is required only if your component needs to be moved to a location other than `<Magento root>/vendor`. Otherwise, omit this section.
+    **Note**:
+    * `extra/map` is required only if your component needs to be moved to a location other than `<Magento root>/vendor`. Otherwise, omit this section.
+    * `extra/chmod` is required only if you need to set specific permissions for files.
+
 
 ## Supported Components
 The following list explains the use of `type` in `composer.json`.
@@ -164,6 +168,39 @@ You must run `composer install` to install dependencies for a new application or
 The Magneto Composer Installer uses the `copy` deployment strategy. It copies each file or directory from the `vendor` directory to its designated location based on the `extra/map` section in the component's `composer.json`.
 
 There are [other deployment strategies](https://github.com/magento/magento-composer-installer/blob/master/doc/Deploy.md) that could be used; however, we don't guarantee that any of them will work.
+
+## Usage `extra/chmod`
+
+The following example shows how you can set specific permissions for files.
+
+Example:
+
+```json
+{
+    "name": "magento/module-sample",
+    "description": "N/A",
+    "require": {
+        ...
+    },
+    "type": "magento2-module",
+    "extra": {
+         "chmod": [
+            {
+                "mask": "0755",
+                "path": "bin/magento"
+            },
+            {
+                "mask": "0644",
+                "path": "some_dir/file.jpg"
+            }
+        ]
+    }
+}
+```
+
+`mask` is a bit mask for chmod command
+
+`path` is a path to file relative to the Magento root folder
 
 # Notes
 - The extra->magento-root-dir option is no longer supported. It displays only to preseve backward compatibility.

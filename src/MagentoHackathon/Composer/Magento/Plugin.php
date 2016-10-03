@@ -157,8 +157,51 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->deployLibraries();
         $this->saveVendorDirPath($event->getComposer());
         $this->requestRegeneration();
+        $this->setFilesPermissions();
     }
 
+    /**
+     * Set permissions for files using extra->chmod from composer.json
+     *
+     * @return void
+     */
+    private function setFilesPermissions()
+    {
+        $packages = $this->composer->getRepositoryManager()->getLocalRepository()->getPackages();
+
+        foreach ($packages as $package) {
+            $message = 'Check "chmod" section in composer.json of ' . $package->getName() . ' package.';
+            $extra = $package->getExtra();
+            if (!isset($extra['chmod']) || !is_array($extra['chmod'])) {
+                continue;
+            }
+
+            $error = false;
+            foreach ($extra['chmod'] as $chmod) {
+                if (!isset($chmod['mask']) || !isset($chmod['path']) || strpos($chmod['path'], '..') !== false) {
+                    $error = true;
+                    continue;
+                }
+
+                $file = $this->installer->getTargetDir() . '/' . $chmod['path'];
+                if (file_exists($file)) {
+                    chmod($file, octdec($chmod['mask']));
+                } else {
+                    $this->io->writeError([
+                        'File doesn\'t exist: ' . $chmod['path'],
+                        $message
+                    ]);
+                }
+            }
+
+            if ($error) {
+                $this->io->writeError([
+                    'Incorrect mask or file path.',
+                    $message
+                ]);
+            }
+        }
+    }
 
     protected function deployLibraries()
     {
