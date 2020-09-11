@@ -48,7 +48,7 @@
         "firegento/phpcs": "dev-patch-1",
         "composer/composer":"*@dev",
         "symfony/process":"*",
-        "mikey179/vfsStream":"*"
+        "mikey179/vfsstream":"*"
     },
     "replace": {
         "magento-hackathon/magento-composer-installer": "*"
