@@ -9,7 +9,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@github.com:Flyingmana/phpcs.git"
+            "url": "git@github.com:firegento/phpcs.git"
         }
     ],
     "authors":[
@@ -39,16 +39,16 @@
         }
     ],
     "require":{
-        "composer-plugin-api": "^1.0"
+        "composer-plugin-api": "^1.0|^2.0"
     },
     "require-dev":{
         "phpunit/phpunit":"*",
         "phpunit/phpunit-mock-objects": "dev-master",
         "squizlabs/php_codesniffer": "1.4.7",
-        "firegento/phpcs": "dev-patch-1",
-        "composer/composer":"*@dev",
+        "firegento/phpcs": "dev-develop",
+        "composer/composer":"<=1.10.6|| ^2.0",
         "symfony/process":"*",
-        "mikey179/vfsStream":"*"
+        "mikey179/vfsstream":"*"
     },
     "replace": {
         "magento-hackathon/magento-composer-installer": "*"
