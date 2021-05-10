@@ -240,7 +240,7 @@ abstract class DeploystrategyAbstract
      */
     public function create($source, $dest)
     {
-        if($this->isDestinationIgnored($dest)){
+        if ($this->isDestinationIgnored($dest)){
             return;
         }
         
@@ -303,6 +303,10 @@ abstract class DeploystrategyAbstract
      */
     public function remove($source, $dest)
     {
+        if ($this->isDestinationIgnored($dest)){
+            return;
+        }
+
         $sourcePath = $this->getSourceDir() . '/' . $this->removeTrailingSlash($source);
         $destPath = $this->getDestDir() . '/' . $dest;
 
