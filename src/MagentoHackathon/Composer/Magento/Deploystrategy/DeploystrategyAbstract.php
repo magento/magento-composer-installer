@@ -5,6 +5,8 @@
 
 namespace MagentoHackathon\Composer\Magento\Deploystrategy;
 
+use Laminas\Stdlib\Glob;
+
 /**
  * Abstract deploy strategy
  */
@@ -342,7 +344,7 @@ abstract class DeploystrategyAbstract
     protected function removeContentOfCategory($sourcePath, $destPath)
     {
         $sourcePath = preg_replace('#/\*$#', '/{,.}*', $sourcePath);
-        $matches = glob($sourcePath, GLOB_BRACE);
+        $matches = Glob::glob($sourcePath, Glob::GLOB_BRACE);
         if ($matches) {
             foreach ($matches as $match) {
                 if (preg_match("#/\.{1,2}$#", $match)) {
