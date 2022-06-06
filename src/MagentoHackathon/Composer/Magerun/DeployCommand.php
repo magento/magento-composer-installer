@@ -8,6 +8,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class DeployCommand extends AbstractMagentoCommand
 {
+    private const SUCCESS_EXIT_CODE = 0;
+
+    /**
+     * @inheritdoc
+     */
     protected function configure()
     {
       $this
@@ -16,14 +21,13 @@ class DeployCommand extends AbstractMagentoCommand
       ;
     }
 
-   /**
-    * @param \Symfony\Component\Console\Input\InputInterface $input
-    * @param \Symfony\Component\Console\Output\OutputInterface $output
-    * @return int|void
-    */
+    /**
+     * @inheritdoc
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        
         $output->writeln('it works, maybe');
+
+        return self::SUCCESS_EXIT_CODE;
     }
 }

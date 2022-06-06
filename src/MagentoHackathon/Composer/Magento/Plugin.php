@@ -255,7 +255,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             if ($this->io->isDebug()) {
                 $this->io->write('Magento deployLibraries executes autoload generator');
             }
-            $process = new Process($executable . " -o {$libraryPath}/autoload.php  " . implode(' ', $autoloadDirectories));
+            $process = Process::fromShellCommandline($executable . " -o {$libraryPath}/autoload.php  " . implode(' ', $autoloadDirectories));
             $process->run();
         } else {
             if ($this->io->isDebug()) {
