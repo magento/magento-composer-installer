@@ -93,13 +93,7 @@ class DeployManager
             if ($this->io->isDebug()) {
                 $this->io->write('start magento deploy for ' . $package->getPackageName());
             }
-            try {
-                $package->getDeployStrategy()->deploy();
-            } catch (\ErrorException $e) {
-                if ($this->io->isDebug()) {
-                    $this->io->write($e->getMessage());
-                }
-            }
+            $package->getDeployStrategy()->deploy();
         }
     }
 
