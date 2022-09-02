@@ -20,8 +20,8 @@ class Symlink extends DeploystrategyAbstract
      */
     public function createDelegate($source, $dest)
     {
-        $sourcePath = $this->getSourceDir() . '/' . $this->removeTrailingSlash($source);
-        $destPath = $this->getDestDir() . '/' . $this->removeTrailingSlash($dest);
+        $sourcePath = $this->getSourceDir() . DIRECTORY_SEPARATOR . $this->removeTrailingSlash($source);
+        $destPath = $this->getDestDir() . DIRECTORY_SEPARATOR . $this->removeTrailingSlash($dest);
 
         if (!is_file($sourcePath) && !is_dir($sourcePath)) {
             throw new \ErrorException("Could not find path '$sourcePath'");
@@ -60,7 +60,7 @@ class Symlink extends DeploystrategyAbstract
         // Create all directories up to one below the target if they don't exist
         $destDir = dirname($destPath);
         if (!file_exists($destDir)) {
-            mkdir($destDir, 0777, true);
+            mkdir($destDir, 0755, true);
         }
 
         // Handle source to dir linking,
@@ -123,8 +123,8 @@ class Symlink extends DeploystrategyAbstract
      */
     public function getRelativePath($from, $to)
     {
-        $from = str_replace(array('/./', '//', '\\'), '/', $from);
-        $to = str_replace(array('/./', '//', '\\'), '/', $to);
+        $from = str_replace(['/./', '//', '\\'], '/', $from);
+        $to = str_replace(['/./', '//', '\\'], '/', $to);
 
         if (is_file($from)) {
             $from = dirname($from);
@@ -140,7 +140,7 @@ class Symlink extends DeploystrategyAbstract
             array_shift($dir);
         }
 
-        $relativePath = str_repeat('../', count($dir)) . implode('/', $file);
-        return $relativePath;
+        // magento_dir/targetdir/childdir => ../../module_dir/sourcedir/childdir
+        return str_repeat('../', count($dir) - 1) . implode('/', $file);
     }
 }

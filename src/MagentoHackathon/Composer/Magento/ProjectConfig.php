@@ -22,7 +22,8 @@ class ProjectConfig {
         }
     }
     
-    protected function fetchVarFromConfigArray( $array, $key, $default=null ){
+    protected function fetchVarFromConfigArray($array, $key, $default = null)
+    {
         $result = $default;
         if( isset($array[$key]) ){
             $result = $array[$key];

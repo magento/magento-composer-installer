@@ -32,7 +32,7 @@ class SymlinkTest extends AbstractTest
         $this->strategy->create($src, $dest);
         $this->assertTrue(is_readable($this->destDir . DIRECTORY_SEPARATOR . $dest));
         unlink($this->destDir . DIRECTORY_SEPARATOR . $dest);
-        $this->strategy->clean($this->destDir . DIRECTORY_SEPARATOR . $dest);
+        $this->strategy->clean();
         $this->assertFalse(is_readable($this->destDir . DIRECTORY_SEPARATOR . $dest));
     }
 
@@ -68,7 +68,8 @@ class SymlinkTest extends AbstractTest
         $testTarget = $this->destDir . DS . $dest . DS . basename($globSource) . DS . basename($sourceContents);
 
         $this->strategy->setIsForced(false);
-        $this->setExpectedException('ErrorException', "Target targetdir/childdir already exists");
+        $this->expectException('ErrorException');
+        $this->expectExceptionMessage("Target targetdir/childdir already exists");
         $this->strategy->create($globSource, $dest);
         //passthru("tree {$this->destDir}/$dest");
     }

@@ -1,9 +1,12 @@
 <?php
 namespace MagentoHackathon\Composer\Magento\Deploystrategy;
 
-if (! defined('DS')) define('DS', DIRECTORY_SEPARATOR);
+use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\TestCase;
 
-abstract class AbstractTest extends \PHPUnit_Framework_TestCase
+if (!defined('DS')) define('DS', DIRECTORY_SEPARATOR);
+
+abstract class AbstractTest extends TestCase
 {
     const TEST_FILETYPE_FILE = 'file';
     const TEST_FILETYPE_LINK = 'link';
@@ -13,6 +16,12 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
      * @var DeploystrategyAbstract
      */
     protected $strategy = null;
+
+    /**
+     * @var string
+     */
+    protected $testDir;
+
     /**
      * @var  string
      */
@@ -46,14 +55,14 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->filesystem = new \Composer\Util\Filesystem();
-        $this->sourceDir = sys_get_temp_dir() . DS . $this->getName() . DS . "module_dir";
-        $this->destDir = sys_get_temp_dir() . DS . $this->getName() . DS . "magento_dir";
+        $this->testDir = sys_get_temp_dir() . DS . $this->getName();
+        $this->sourceDir = $this->testDir . DS . "module_dir";
+        $this->destDir = $this->testDir . DS . "magento_dir";
         $this->filesystem->ensureDirectoryExists($this->sourceDir);
         $this->filesystem->ensureDirectoryExists($this->destDir);
-
         $this->strategy = $this->getTestDeployStrategy($this->sourceDir, $this->destDir);
     }
 
@@ -61,51 +70,51 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
      * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
-        $this->filesystem->remove($this->sourceDir);
-        $this->filesystem->remove($this->destDir);
+        $this->filesystem->remove($this->testDir);
     }
 
     /**
      * @param string $file
      * @param string $type
      * @throws \InvalidArgumentException
-     * @throws \PHPUnit_Framework_AssertionFailedError
+     * @throws AssertionFailedError
      */
     public function assertFileType($file, $type)
     {
         switch ($type) {
             case self::TEST_FILETYPE_FILE:
-                $result = is_file($file) && ! is_link($file);
+                $result = is_file($file) && !is_link($file);
                 break;
             case self::TEST_FILETYPE_LINK:
                 $file = rtrim($file, '/\\');
                 $result = is_link($file);
                 break;
             case self::TEST_FILETYPE_DIR:
-                $result = is_dir($file) && ! is_link($file);
+                $result = is_dir($file) && !is_link($file);
                 break;
             default:
                 throw new \InvalidArgumentException(
                     "Invalid file type argument: " . $type
                 );
         }
-        if (! $result) {
-            //echo "\n$file\n";
-            //passthru("ls -l " . $file);
-            if (is_dir($file) && ! is_link($file)) {
+        if (!$result) {
+            if (is_dir($file) && !is_link($file)) {
                 $realType = 'dir';
             } elseif (is_link($file)) {
                 $realType = 'link';
-            } elseif (is_file($file) && ! is_link($file)) {
+            } elseif (is_file($file) && !is_link($file)) {
                 $realType = 'file';
             } else {
                 $realType = 'unknown';
             }
-            throw new \PHPUnit_Framework_AssertionFailedError(
-              "Failed to assert that the $file is of type $type, found type $realType instead."
-            );
+            throw new AssertionFailedError(sprintf(
+                'Failed to assert that the "%s" is of type "%s", found type "%s" instead.',
+                $file,
+                $type,
+                $realType
+            ));
         }
     }
 
@@ -118,13 +127,13 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
                 throw new \Exception("mkdir('$dir') already exists and is a file");
             }
         }
-        return mkdir($dir, 0777, $recursive);
+        return mkdir($dir, 0755, $recursive);
     }
 
     public function testGetMappings()
     {
-        $mappingData = array('test', 'test2');
-        $this->strategy->setMappings(array($mappingData));
+        $mappingData = ['test', 'test2'];
+        $this->strategy->setMappings([$mappingData]);
         $this->assertTrue(is_array($this->strategy->getMappings()));
         $firstValue = $this->strategy->getMappings();
         $this->assertEquals(array_pop($firstValue), $mappingData);
@@ -132,11 +141,11 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
     public function testAddMapping()
     {
-        $this->strategy->setMappings(array());
+        $this->strategy->setMappings([]);
         $this->strategy->addMapping('t1', 't2');
         $this->assertTrue(is_array($this->strategy->getMappings()));
         $firstValue = $this->strategy->getMappings();
-        $this->assertEquals(array_pop($firstValue), array("t1", "t2"));
+        $this->assertEquals(array_pop($firstValue), ["t1", "t2"]);
     }
 
     public function testCreate()
@@ -146,7 +155,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         touch($this->sourceDir . DS . $src);
         $this->assertTrue(is_readable($this->sourceDir . DS . $src));
         $this->assertFalse(is_readable($this->destDir . DS . $dest));
-        $this->strategy->setCurrentMapping(array($src, $dest));
+        $this->strategy->setCurrentMapping([$src, $dest]);
         $this->strategy->create($src, $dest);
         $this->assertTrue(is_readable($this->destDir . DS . $dest));
     }
@@ -159,7 +168,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         touch($this->sourceDir . DS . $src . DS . "local.xml");
         $this->assertTrue(is_readable($this->sourceDir . DS . $src . DS . "local.xml"));
         $this->assertFalse(is_readable($this->destDir . DS . $dest . DS . "local.xml"));
-        $this->strategy->setCurrentMapping(array($src, $dest));
+        $this->strategy->setCurrentMapping([$src, $dest]);
         $this->strategy->create($src, $dest);
         $this->assertTrue(is_readable($this->destDir . DS . $dest . DS . "local.xml"));
     }
@@ -175,7 +184,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
         $testTarget = $this->destDir . DS . $dest . DS . basename($globSource);
 
-        $this->strategy->setCurrentMapping(array($globSource, $dest));
+        $this->strategy->setCurrentMapping([$globSource, $dest]);
         $this->strategy->create($globSource, $dest);
 
         $this->assertFileType(dirname($testTarget), self::TEST_FILETYPE_DIR);
@@ -195,7 +204,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
         $testTarget = $this->destDir . DS . $dest . DS . basename($globSource) . DS . basename($sourceContents);
 
-        $this->strategy->setCurrentMapping(array($globSource, $dest));
+        $this->strategy->setCurrentMapping([$globSource, $dest]);
         $this->strategy->create($globSource, $dest);
         //passthru("tree {$this->destDir}/$dest");
 
@@ -215,7 +224,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
         $testTarget = $this->destDir . DS . $dest . DS . basename($globSource) . DS . basename($sourceContents);
 
-        $this->strategy->setCurrentMapping(array($globSource, $dest));
+        $this->strategy->setCurrentMapping([$globSource, $dest]);
         $this->strategy->create($globSource, $dest);
         //passthru("tree {$this->destDir}/$dest");
 
@@ -233,7 +242,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
         $testTarget = $this->destDir . DS . $dest;
 
-        $this->strategy->setCurrentMapping(array($globSource, $dest));
+        $this->strategy->setCurrentMapping([$globSource, $dest]);
         $this->strategy->create($globSource, $dest);
 
         $this->assertFileType(dirname($testTarget), self::TEST_FILETYPE_DIR);
@@ -253,7 +262,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         $testTarget = $this->destDir . DS . $dest . basename($globSource);
 
         // second create has to identify symlink
-        $this->strategy->setCurrentMapping(array($globSource, $dest));
+        $this->strategy->setCurrentMapping([$globSource, $dest]);
         $this->strategy->create($globSource, $dest);
 
         $this->assertFileType(dirname($testTarget), self::TEST_FILETYPE_DIR);
@@ -272,7 +281,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         $testTarget = $this->destDir . DS . $dest . basename($globSource);
 
         // second create has to identify symlink
-        $this->strategy->setCurrentMapping(array($globSource, $dest));
+        $this->strategy->setCurrentMapping([$globSource, $dest]);
         $this->strategy->create($globSource, $dest);
 
         $this->assertFileType(dirname($testTarget), self::TEST_FILETYPE_DIR);
@@ -284,7 +293,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     {
         $globSource = "sourcedir/*";
         $glob_dir = dirname($globSource);
-        $files = array('test1.xml', 'test2.xml');
+        $files = ['test1.xml', 'test2.xml'];
         $this->mkdir($this->sourceDir . DS . $glob_dir);
         foreach ($files as $file) {
             touch($this->sourceDir . DS . $glob_dir . DS . $file);
@@ -292,7 +301,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
         $dest = "targetdir";
 
-        $this->strategy->setCurrentMapping(array($globSource, $dest));
+        $this->strategy->setCurrentMapping([$globSource, $dest]);
         $this->strategy->create($globSource, $dest);
 
         $targetDir = $this->destDir . DS . $dest;
@@ -312,7 +321,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     {
         $globSource = "sourcedir/*";
         $glob_dir = dirname($globSource);
-        $files = array('test1.xml', 'test2.xml');
+        $files = ['test1.xml', 'test2.xml'];
         $this->mkdir($this->sourceDir . DS . $glob_dir);
         foreach ($files as $file) {
             touch($this->sourceDir . DS . $glob_dir . DS . $file);
@@ -321,7 +330,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         $dest = "targetdir";
         $this->mkdir($this->destDir . DS . $dest);
 
-        $this->strategy->setCurrentMapping(array($globSource, $dest));
+        $this->strategy->setCurrentMapping([$globSource, $dest]);
         $this->strategy->create($globSource, $dest);
 
         $targetDir = $this->destDir . DS . $dest;
@@ -338,12 +347,12 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
     public function testSourceAndTargetAreDirsDoNotExist()
     {
-        $fixtures = array(
-            array('sourcedir', 'targetdir'),
-            array('sourcedir', 'targetdir/'),
-            array('sourcedir/', 'targetdir/'),
-            array('sourcedir/', 'targetdir'),
-        );
+        $fixtures = [
+            ['sourcedir', 'targetdir'],
+            ['sourcedir', 'targetdir/'],
+            ['sourcedir/', 'targetdir/'],
+            ['sourcedir/', 'targetdir'],
+        ];
         foreach ($fixtures as $fixture) {
             $this->tearDown();
             $this->setUp();
@@ -358,7 +367,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
             $testTarget = $this->destDir . DS . $dest;
             $testTargetContent = $testTarget . DS . $sourceDirContent;
 
-            $this->strategy->setCurrentMapping(array($globSource, $dest));
+            $this->strategy->setCurrentMapping([$globSource, $dest]);
             $this->strategy->create($globSource, $dest);
 
             $this->assertFileExists($testTarget);
@@ -371,12 +380,12 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
     public function testSourceAndTargetAreDirsDoExist()
     {
-        $fixtures = array(
-            array('sourcedir', 'targetdir'),
-            array('sourcedir', 'targetdir/'),
-            array('sourcedir/', 'targetdir/'),
-            array('sourcedir/', 'targetdir'),
-        );
+        $fixtures = [
+            ['sourcedir', 'targetdir'],
+            ['sourcedir', 'targetdir/'],
+            ['sourcedir/', 'targetdir/'],
+            ['sourcedir/', 'targetdir'],
+        ];
         foreach ($fixtures as $fixture) {
             $this->tearDown();
             $this->setUp();
@@ -394,7 +403,7 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
             $testTarget = $this->destDir . DS . $dest . DS . basename($globSource);
             $testTargetContent = $testTarget . DS . $sourceDirContent;
 
-            $this->strategy->setCurrentMapping(array($globSource, $dest));
+            $this->strategy->setCurrentMapping([$globSource, $dest]);
             $this->strategy->create($globSource, $dest);
 
             $this->assertFileExists($testTarget);

@@ -82,6 +82,23 @@ for this you can use `magento-deploy-ignore` which works either global or on mod
 
 may not work for symlink, when file/directory is content of a symlinked directory
  
+### How to prevent your custom .gitignore file to be overridden
+
+In case you want to keep your custom .gitignore file then you need to ignore it in the _magento-deploy-ignore_ section.
+
+```json
+{
+    ...
+    "extra": {
+        "magento-deploy-ignore": {
+            "*": [
+                "/.gitignore"
+            ]
+        }
+    }
+    ...
+}
+```
 
 ### None Deploy
 If you only want to place packages into the vendor directory with no linking/copying into Magento's folder structure use this deploy strategy.

@@ -1,0 +1,28 @@
+{
+    "name":"magento/magento2-base-mock",
+    "type":"magento2-component",
+    "version":"1.0.0",
+    "require" : {
+        "magento/magento-composer-installer": "*"
+    },
+    "extra": {
+        "map": [
+            [
+                "app/code",
+                "app/code"
+            ],
+            [
+                "app/design",
+                "app/design"
+            ],
+            [
+                "app/etc",
+                "app/etc"
+            ],
+            [
+                "app/i18n",
+                "app/i18n"
+            ]
+        ]
+    }
+}

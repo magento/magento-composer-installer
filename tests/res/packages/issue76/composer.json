@@ -1,6 +1,14 @@
 {
-    "name":"magento-hackathon/magento-composer-installer-test-issue-87",
+    "name":"magento/magento-composer-installer-test-issue-87",
     "minimum-stability":"stable",
-    "type":"magento-module",
-    "version":"1.0.0"
+    "type":"magento2-theme",
+    "version":"1.0.0",
+    "extra": {
+        "map": [
+            [
+                "Foobar/issue76.phtml",
+                "frontend/Magento/luma/Magento_ThemeMock/Foobar/issue76.phtml"
+            ]
+        ]
+    }
 }

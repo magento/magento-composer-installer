@@ -1,15 +1,11 @@
 {
 	"require": {
-		"magento-hackathon/magento-composer-installer": "*",
-        "theseer/autoload": "~1.14",
-        "zetacomponents/console-tools": "dev-master",
-		"connect20/mage_all_latest": "*"
+		"magento/magento2-base-mock": "*",
+		"magento/magento-composer-installer": "100.100.100",
+		"theseer/autoload": "~1.14",
+		"zetacomponents/console-tools": "dev-master"
 	},
 	"repositories": [
-		{
-			"type": "composer",
-			"url": "http://packages.firegento.com"
-		},
         {
             "type": "artifact",
             "url": "../artifact/"

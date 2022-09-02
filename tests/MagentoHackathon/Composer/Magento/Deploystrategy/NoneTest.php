@@ -8,7 +8,7 @@ if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
 
-class NoneTest extends \PHPUnit_Framework_TestCase
+class NoneTest extends \PHPUnit\Framework\TestCase
 {
     const URL_VFS_ROOT = 'vfsroot';
 
@@ -17,7 +17,7 @@ class NoneTest extends \PHPUnit_Framework_TestCase
         return vfsStream::url(self::URL_VFS_ROOT . DS . $input);
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         vfsStream::setup(self::URL_VFS_ROOT);
         $this->sourceDir = $this->_getVfsUrl('sourceDir');
@@ -31,7 +31,7 @@ class NoneTest extends \PHPUnit_Framework_TestCase
         $dest = 'test2';
 
         //create the source directory
-        mkdir($this->_getVfsUrl('sourceDir' . DS . $src), null, true);
+        mkdir($this->_getVfsUrl('sourceDir' . DS . $src), 0755, true);
 
         $this->assertTrue(is_dir($this->_getVfsUrl('sourceDir' . DS . $src)));
         $this->assertFalse(is_dir($this->_getVfsUrl('destDir' . DS . $dest)));

@@ -12,13 +12,13 @@ abstract class PathTranslationParser implements Parser
      * @var array Variants on each prefix that path mappings are checked
      * against.
      */
-    protected $pathPrefixVariants = array('', './');
+    protected $pathPrefixVariants = ['', './'];
 
     /**
      * @var array Path mapping prefixes that need to be translated (i.e. to
      * use a public directory as the web server root).
      */
-    protected $pathPrefixTranslations = array();
+    protected $pathPrefixTranslations = [];
 
     protected $pathSuffix;
 
@@ -43,7 +43,7 @@ abstract class PathTranslationParser implements Parser
      */
     protected function createPrefixVariants($translations)
     {
-        $newTranslations = array();
+        $newTranslations = [];
         foreach($translations as $key => $value) {
             foreach($this->pathPrefixVariants as $variant) {
                 $newTranslations[$variant.$key] = $value;

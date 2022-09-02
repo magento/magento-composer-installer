@@ -49,6 +49,4 @@ class Entry {
     {
         return $this->deployStrategy;
     }
-    
-    
 }

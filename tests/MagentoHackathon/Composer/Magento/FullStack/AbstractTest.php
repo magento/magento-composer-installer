@@ -11,34 +11,44 @@ namespace MagentoHackathon\Composer\Magento\FullStack;
 use Composer\Util\Filesystem;
 use Symfony\Component\Process\Process;
 
-abstract class AbstractTest extends \PHPUnit_Framework_TestCase
+abstract class AbstractTest extends \PHPUnit\Framework\TestCase
 {
 
     protected static $processLogCounter = 1;
 
-    public static function setUpBeforeClass()
+    /**
+     * Store current module version for rollback
+     *
+     * @var string
+     */
+    protected static $currentModuleVersion = '';
+
+    /**
+     * Version to be set in root composer.json for tests
+     *
+     * @var string
+     */
+    protected static $testVersion = '100.100.100';
+
+    public static function setUpBeforeClass(): void
     {
-        $process = new Process(
-            'perl -pi -e \'s/"test_version"/"version"/g\' ./composer.json',
-            self::getProjectRoot()
+        $rootComposer = json_decode(file_get_contents(self::getProjectRoot() . '/composer.json'), true);
+        self::$currentModuleVersion = $rootComposer['version'] ?? '';
+        $rootComposer['version'] = self::$testVersion;
+        file_put_contents(
+            self::getProjectRoot() . '/composer.json',
+            json_encode($rootComposer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
         );
-        $process->run();
-        if ($process->getExitCode() !== 0) {
-            $message = 'process for <code>'.$process->getCommandLine().'</code> exited with '.$process->getExitCode().': '.$process->getExitCodeText();
-            $message .= PHP_EOL.'Error Message:'.PHP_EOL.$process->getErrorOutput();
-            $message .= PHP_EOL.'Output:'.PHP_EOL.$process->getOutput();
-            echo $message;
-        }
-        
+
         @unlink(self::getProjectRoot().'/vendor/theseer/directoryscanner/tests/_data/linkdir');
         @unlink(self::getBasePath().'/magento/vendor/theseer/directoryscanner/tests/_data/linkdir');
         @unlink(self::getBasePath().'/magento-modules/vendor/theseer/directoryscanner/tests/_data/linkdir');
         @unlink(self::getProjectRoot().'/vendor/theseer/directoryscanner/tests/_data/nested/empty');
         @unlink(self::getBasePath().'/magento/vendor/theseer/directoryscanner/tests/_data/nested/empty');
         @unlink(self::getBasePath().'/magento-modules/vendor/theseer/directoryscanner/tests/_data/nested/empty');
-        
-        $process = new Process(
-            self::getComposerCommand().' archive --format=zip --dir="tests/FullStackTest/artifact" -vvv',
+
+        $process = Process::fromShellCommandline(
+            './' . self::getComposerCommand().' archive --format=zip --dir="tests/FullStackTest/artifact" -vvv',
             self::getProjectRoot()
         );
         $process->run();
@@ -53,9 +63,20 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
 
     }
     
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
-        $process = new Process(
+        $rootComposer = json_decode(file_get_contents(self::getProjectRoot() . '/composer.json'), true);
+        if (self::$currentModuleVersion === '') {
+            unset($rootComposer['version']);
+        } else {
+            $rootComposer['version'] = self::$currentModuleVersion;
+        }
+        file_put_contents(
+            self::getProjectRoot() . '/composer.json',
+            json_encode($rootComposer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+        );
+
+        $process = Process::fromShellCommandline(
             'perl -pi -e \'s/"version"/"test_version"/g\' ./composer.json',
             self::getProjectRoot()
         );
@@ -77,11 +98,8 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     }
 
     protected static function getComposerCommand(){
-        $command = 'composer.phar';
-        if( getenv('TRAVIS') == "true" ){
-            $command = self::getProjectRoot().'/composer.phar';
-        }
-        return $command;
+
+        return 'composer.phar';
     }
 
     protected static function getComposerArgs(){
@@ -89,11 +107,23 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
     }
 
     protected static function logProcessOutput(Process $process, $name = null){
-        if($name === null){
+        if($name === null) {
             $name = self::$processLogCounter;
             self::$processLogCounter++;
         }
-        file_put_contents( self::getBasePath().'/'.get_called_class().'_'.$name.'Output.log', $process->getCommandLine() ."\n\n". $process->getOutput() );
+        $logPath = implode(DIRECTORY_SEPARATOR, [
+            self::getBasePath(),
+            'logs',
+            str_replace('\\', '_', static::class),
+            $name . '_Output.log'
+        ]);
+        if (!is_dir(dirname($logPath))) {
+            mkdir(dirname($logPath), 0777, true);
+        }
+        file_put_contents(
+            $logPath,
+            $process->getCommandLine() . "\n\n" . $process->getOutput()
+        );
     }
 
     public function assertProcess(Process $process)
@@ -105,4 +135,4 @@ abstract class AbstractTest extends \PHPUnit_Framework_TestCase
         $message .= PHP_EOL.'Output:'.PHP_EOL.$process->getOutput();
         $this->assertEquals(0, $process->getExitCode(), $message);
     }
-} 
+}

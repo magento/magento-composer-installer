@@ -1,7 +1,7 @@
 <?php
 namespace MagentoHackathon\Composer\Magento;
 
-class ModmanParserTest extends \PHPUnit_Framework_TestCase
+class ModmanParserTest extends \PHPUnit\Framework\TestCase
 {
     /**
      * @var ModmanParser
@@ -17,7 +17,7 @@ class ModmanParserTest extends \PHPUnit_Framework_TestCase
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $baseTestClassName = substr(basename(__FILE__), 0, -4);
         $this->modmanFileDir = __DIR__ . '/data/' . $baseTestClassName . '/';
@@ -28,7 +28,7 @@ class ModmanParserTest extends \PHPUnit_Framework_TestCase
      * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
     }
 
@@ -61,7 +61,7 @@ class ModmanParserTest extends \PHPUnit_Framework_TestCase
      */
     public function testSetGetFile()
     {
-        $file = $this->getMockBuilder('\\SplFileObject')->setConstructorArgs(array(__FILE__))->getMock();
+        $file = $this->getMockBuilder('\\SplFileObject')->setConstructorArgs([__FILE__])->getMock();
         $this->object->setFile($file);
         $this->assertSame($file, $this->object->getFile());
     }
@@ -71,11 +71,11 @@ class ModmanParserTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetMappings()
     {
-        $expected = array(
-            array('line/with/tab', 'record/one'),
-            array('line/with/space', 'record/two'),
-            array('line/with/space/and/tab', 'record/three')
-        );
+        $expected = [
+            ['line/with/tab', 'record/one'],
+            ['line/with/space', 'record/two'],
+            ['line/with/space/and/tab', 'record/three']
+        ];
         $this->object->setFile($this->modmanFileDir . 'modman');
         $this->assertSame($expected, $this->object->getMappings());
     }

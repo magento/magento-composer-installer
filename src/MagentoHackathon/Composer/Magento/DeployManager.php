@@ -18,7 +18,7 @@ class DeployManager
     /**
      * @var Entry[]
      */
-    protected $packages = array();
+    protected $packages = [];
 
     /**
      * @var IOInterface
@@ -30,7 +30,7 @@ class DeployManager
      *
      * @var array
      */
-    protected $sortPriority = array();
+    protected $sortPriority = [];
 
     /**
      * High priority

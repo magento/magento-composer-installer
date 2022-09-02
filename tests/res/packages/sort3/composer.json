@@ -1,6 +1,14 @@
 {
-    "name":"magento-hackathon/magento-composer-installer-test-sort3",
+    "name":"magento/magento-composer-installer-test-sort3",
     "minimum-stability":"stable",
-    "type":"magento-module",
-    "version":"1.0.0"
+    "type":"magento2-theme",
+    "version":"1.0.0",
+    "extra": {
+        "map": [
+            [
+                "*",
+                "frontend/Magento/luma/Magento_SortThemeMock"
+            ]
+        ]
+    }
 }

@@ -75,7 +75,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $this->deployManager = new DeployManager($io);
 
         $extra = $composer->getPackage()->getExtra();
-        $sortPriority = isset($extra['magento-deploy-sort-priority']) ? $extra['magento-deploy-sort-priority'] : array();
+        $sortPriority = $extra['magento-deploy-sort-priority'] ?? [];
         $this->deployManager->setSortPriority($sortPriority);
 
     }
@@ -99,20 +99,20 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
     public static function getSubscribedEvents()
     {
-        return array(
-            PluginEvents::COMMAND => array(
-                array('onCommandEvent', 0),
-            ),
-            ScriptEvents::POST_INSTALL_CMD => array(
-                array('onNewCodeEvent', 0),
-            ),
-            ScriptEvents::POST_UPDATE_CMD => array(
-                array('onNewCodeEvent', 0),
-            ),
-            PackageEvents::POST_PACKAGE_UNINSTALL => array(
-                array('onPackageUnistall', 0),
-            )
-        );
+        return [
+            PluginEvents::COMMAND => [
+                ['onCommandEvent', 1],
+            ],
+            ScriptEvents::POST_INSTALL_CMD => [
+                ['onNewCodeEvent', 1],
+            ],
+            ScriptEvents::POST_UPDATE_CMD => [
+                ['onNewCodeEvent', 1],
+            ],
+            PackageEvents::POST_PACKAGE_UNINSTALL => [
+                ['onPackageUnistall', 0],
+            ]
+        ];
     }
 
     public function onPackageUnistall(\Composer\Installer\PackageEvent $event)
@@ -206,7 +206,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     protected function deployLibraries()
     {
         $packages = $this->composer->getRepositoryManager()->getLocalRepository()->getPackages();
-        $autoloadDirectories = array();
+        $autoloadDirectories = [];
 
         $libraryPath = $this->config->getLibraryPath();
         if ($libraryPath === null) {
@@ -215,8 +215,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             }
             return;
         }
-
-
         $vendorDir = rtrim($this->composer->getConfig()->get('vendor-dir'), '/');
 
         $filesystem = $this->filesystem;
@@ -230,7 +228,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 continue;
             }
             if (!isset($packageConfig['autoload'])) {
-                $packageConfig['autoload'] = array('/');
+                $packageConfig['autoload'] = ['/'];
             }
             foreach ($packageConfig['autoload'] as $path) {
                 $autoloadDirectories[] = $libraryPath . '/' . $package->getName() . "/" . $path;
@@ -255,7 +253,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             if ($this->io->isDebug()) {
                 $this->io->write('Magento deployLibraries executes autoload generator');
             }
-            $process = new Process($executable . " -o {$libraryPath}/autoload.php  " . implode(' ', $autoloadDirectories));
+            $command = $executable . " -o {$libraryPath}/autoload.php  " . implode(' ', $autoloadDirectories);
+            $process = method_exists(Process::class, 'fromShellCommandline') ? Process::fromShellCommandline($command) : new Process($command);
             $process->run();
         } else {
             if ($this->io->isDebug()) {
@@ -264,8 +263,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
             }
         }
-
-
     }
 
 
@@ -334,5 +331,19 @@ AUTOLOAD;
             $filename = $this->installer->getTargetDir() . $this->varFolder . $this->regenerate;
             touch($filename);
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
     }
 }

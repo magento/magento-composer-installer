@@ -23,14 +23,14 @@ class GitIgnoreGeneratorTest extends InstallerTest
     public function testGitIgnoreAppendToExistingFile()
     {
         $gitIgnoreFile      = $this->getGitIgnoreTestPath();
-        $gitIgnoreContent   = array("vendor", ".idea");
+        $gitIgnoreContent   = ["vendor", ".idea"];
         file_put_contents($gitIgnoreFile, implode("\n", $gitIgnoreContent));
 
-        $map = array(
-            array('test1', 'test1'),
-            array('testfolder1/testfile1', 'testfolder1/testfile1'),
-        );
-        $package = $this->createPackageMock(array('map' => $map, 'auto-append-gitignore' => true));
+        $map = [
+            ['test1', 'test1'],
+            ['testfolder1/testfile1', 'testfolder1/testfile1'],
+        ];
+        $package = $this->createPackageMock(['map' => $map, 'auto-append-gitignore' => true]);
         $this->composer->setPackage($package);
         $installer = new Installer($this->io, $this->composer);
         $installer->appendGitIgnore($package, $gitIgnoreFile);
@@ -47,11 +47,11 @@ class GitIgnoreGeneratorTest extends InstallerTest
     public function testGitIgnoreCreateFileIfNotExist()
     {
         $gitIgnoreFile = $this->getGitIgnoreTestPath();
-        $map = array(
-            array('test1', 'test1'),
-            array('testfolder1/testfile1', 'testfolder1/testfile1'),
-        );
-        $package = $this->createPackageMock(array('map' => $map, 'auto-append-gitignore' => true));
+        $map = [
+            ['test1', 'test1'],
+            ['testfolder1/testfile1', 'testfolder1/testfile1'],
+        ];
+        $package = $this->createPackageMock(['map' => $map, 'auto-append-gitignore' => true]);
         $this->composer->setPackage($package);
         $installer = new Installer($this->io, $this->composer);
         $installer->appendGitIgnore($package, $gitIgnoreFile);
@@ -67,12 +67,12 @@ class GitIgnoreGeneratorTest extends InstallerTest
      */
     public function testGitAppendMethodNotCalledIfOptionNotSelected()
     {
-        $package = $this->createPackageMock(array('map' => array()));
+        $package = $this->createPackageMock(['map' => []]);
         $this->composer->setPackage($package);
 
         $mockInstaller = $this->getMockBuilder('MagentoHackathon\Composer\Magento\Installer')
-            ->setConstructorArgs(array($this->io, $this->composer))
-            ->setMethods(array('appendGitIgnore'))
+            ->setConstructorArgs([$this->io, $this->composer])
+            ->setMethods(['appendGitIgnore'])
             ->getMock();
         
         $mockInstaller->setDeployManager( new DeployManager( $this->io ) );
@@ -90,12 +90,12 @@ class GitIgnoreGeneratorTest extends InstallerTest
     {
         $gitIgnoreFile = $this->getGitIgnoreTestPath();
 
-        $package = $this->createPackageMock(array('map' => array(), 'auto-append-gitignore' => true));
+        $package = $this->createPackageMock(['map' => [], 'auto-append-gitignore' => true]);
         $this->composer->setPackage($package);
 
         $mockInstaller = $this->getMockBuilder('MagentoHackathon\Composer\Magento\Installer')
-            ->setConstructorArgs(array($this->io, $this->composer))
-            ->setMethods(array('getGitIgnoreFileLocation', 'appendGitIgnore'))
+            ->setConstructorArgs([$this->io, $this->composer])
+            ->setMethods(['getGitIgnoreFileLocation', 'appendGitIgnore'])
             ->getMock();
 
         $mockInstaller->expects($this->once())

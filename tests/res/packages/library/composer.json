@@ -1,5 +1,5 @@
 {
-    "name":"magento-hackathon/magento-composer-installer-test-library",
+    "name":"magento/magento-composer-installer-test-library",
     "minimum-stability":"stable",
     "autoload":{
         "classmap": [
