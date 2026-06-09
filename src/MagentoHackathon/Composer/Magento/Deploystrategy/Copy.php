@@ -107,7 +107,14 @@ class Copy extends DeploystrategyAbstract
         if (is_link($destPath)) {
             return true;
         }
-        mkdir($destPath, 0755, true);
+        if (!is_dir($destPath)) {
+            if (file_exists($destPath)) {
+                throw new \ErrorException(
+                    sprintf('Cannot deploy to "%s": the path exists but is not a directory', $destPath)
+                );
+            }
+            mkdir($destPath, 0755, true);
+        }
 
         $iterator = new \RecursiveIteratorIterator(
             new \RecursiveDirectoryIterator($sourcePath),
