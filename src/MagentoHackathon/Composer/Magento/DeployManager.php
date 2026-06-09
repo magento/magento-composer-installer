@@ -96,9 +96,14 @@ class DeployManager
             try {
                 $package->getDeployStrategy()->deploy();
             } catch (\ErrorException $e) {
-                if ($this->io->isDebug()) {
-                    $this->io->write($e->getMessage());
-                }
+                // Surface deploy failures at normal verbosity. Previously these were only
+                // written in debug mode, so a failed package deploy (e.g. a partially
+                // populated setup/ directory) was silent and very hard to diagnose.
+                $this->io->writeError(sprintf(
+                    '<warning>Magento deploy failed for %s: %s</warning>',
+                    $package->getPackageName(),
+                    $e->getMessage()
+                ));
             }
         }
     }

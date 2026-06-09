@@ -100,6 +100,13 @@ class Copy extends DeploystrategyAbstract
         if (file_exists($destPath)) {
             $destPath .= DIRECTORY_SEPARATOR . basename($sourcePath);
         }
+        // Preserve a pre-existing symlink at the destination (e.g. shared-storage mounts).
+        // file_exists() follows the link, so a symlink whose target is missing reads as
+        // absent here; mkdir() would then fail with "mkdir(): File exists" and abort the
+        // whole deploy. Leave the link in place and skip recursing into it.
+        if (is_link($destPath)) {
+            return true;
+        }
         mkdir($destPath, 0755, true);
 
         $iterator = new \RecursiveIteratorIterator(
