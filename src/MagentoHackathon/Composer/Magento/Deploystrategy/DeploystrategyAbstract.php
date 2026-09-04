@@ -210,7 +210,7 @@ abstract class DeploystrategyAbstract
         $destination = str_replace('/./','/', $destination);
         $destination = str_replace('//','/', $destination);
         foreach($this->ignoredMappings as $ignored){
-            if( 0 === strpos($ignored,$destination) ){
+            if( 0 === strpos($destination,$ignored) ){
                 return true;
             }
         }
