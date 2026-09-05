@@ -165,7 +165,7 @@ This information allows the Magento application to utilize the Composer autoload
 You must run `composer install` to install dependencies for a new application or `composer update` to update dependencies for an existing application.
 
 ## Deployment Strategy
-The Magneto Composer Installer uses the `copy` deployment strategy. It copies each file or directory from the `vendor` directory to its designated location based on the `extra/map` section in the component's `composer.json`.
+The Magento Composer Installer uses the `copy` deployment strategy. It copies each file or directory from the `vendor` directory to its designated location based on the `extra/map` section in the component's `composer.json`.
 
 There are [other deployment strategies](https://github.com/magento/magento-composer-installer/blob/master/doc/Deploy.md) that could be used; however, we don't guarantee that any of them will work.
 
